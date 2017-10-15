@@ -3,8 +3,9 @@
 	Author : Hanfei Lin
 	Date: 10/14/2017
 */
-//var component = vis.component().size([940, 580]);
+
 var mainview = vis.mainview();
+var hview = vis.hview();
 
 // layout UI and setup events
 $(document).ready(function() {
@@ -34,18 +35,21 @@ function wire_events() {
 function display() {
 	// clean contents
 	d3.select("#mainview").selectAll("*").remove();
+	d3.select("#hview").selectAll("*").remove();
 
 	// load datasets
 	var data = $('#dataset').val();
 	if(!data || data == '') {
 		return;
 	}
-	var url = "data/" + $('#dataset').val() + ".txt";
-	d3.json(url, function(error, json) {
+
+	var dataUrl = "data/" + $('#dataset').val() + ".txt";
+	d3.json(dataUrl, function(error, json) {
 		if (error) {
 			console.log(error)
 			return;
 		}
-		mainview.container(d3.select("#mainview")).data(json).layout().render();
+		hview.container(d3.select("#hview")).data(json.source).layout().render();
+		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
 	});
 };

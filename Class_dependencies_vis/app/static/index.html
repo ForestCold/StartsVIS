@@ -16,54 +16,51 @@
 		<script type="text/javascript" src="lib/contextmenu/jquery.contextmenu.js"></script>
 	</head>
 	<body>
+		<div id = "head">
+			<h>Class Dependencies Visualization from STARTS</h>
+		</div>
 		<div style="width: 1280px; height: 900px; margin: 0 auto;">
-
 			<div style="width: 312px; float: left;">
 				<div style="width: 300px; margin: 4px">
 					<div class="toolbar ui-widget-header ui-corner-all">
-						<label class="toolbar_label">Overview:</label>
+						<label class="toolbar_label">Overview</label>
 					</div>
 					<div id="overview" class="ui-widget-content ui-corner-all no_selection"></div>
 				</div>
-				<div id="tablists" style="width: 300px; margin: 4px">
-					<ul>
-						<li><a href="#vview1" class="toolbar_label">Vertical View1</a></li>
-   						<li><a href="#vview2" class="toolbar_label">Vertical View2</a></li>
-  					</ul>
-					<div id="vview1" class="ui-widget-content ui-corner-all"></div>
-					<div id="vview2" class="ui-widget-content ui-corner-all no_selection"></div>
+				<div style="width: 300px; margin: 4px">
+					<div class="toolbar ui-widget-header ui-corner-all">
+						<label class="toolbar_label">Vertical view</label>
+					</div>
+					<div id="vview" style="margin-right: 2px; height: 517px; width: 308px" class="ui-widget-content ui-corner-all no_selection"></div>
 				</div>
-			</div>
+				</div>
 			<div style="width: 968px; float: left;">
 				<div style="width: 960px; margin: 4px">
 					<div class="toolbar ui-widget-header ui-corner-all">
-						<span class="ui-widget" style="float: left;">
+						<label class="toolbar_label">Class Dependencies Graph</label>
+						<span class="toolbar_label ui-widget" style="float: right;">
 								Dataset:
 								<select id="dataset" onchange="display()">
 								</select>
 						</span>
 					</div>
-					<div id="mainview" style="margin-top:-4px; overflow:hidden" class="ui-widget-content ui-corner-all no_selection"></div>
+					<div id="mainview" style="margin-top:2px; overflow:hidden" class="ui-widget-content ui-corner-all no_selection"></div>
 				</div>
-				<div id="tabs" style="width: 960px; margin: 4px">
-					<ul>
-   						<li>
-   							<a href="#hview1" class="toolbar_label">Horizontal View 1</a>
-   						</li>
-   						<li>
-   							<a href="#hview2" class="toolbar_label">Horizontal View 2</a>
-   						</li>
-  					</ul>
-  					<div id="hview1" class="ui-widget-content ui-corner-all no_selection"></div>
-					<div id="hview2" class="ui-widget-content ui-corner-all no_selection"></div>
+				<div style="width: 960px; margin: 4px">
+					<div class="toolbar ui-widget-header ui-corner-all">
+						<label class="toolbar_label">Source file</label>
+					</div>
+  				<div id="hview" style="margin-top: 2px; height: 234px; width: 968px; overflow: scroll;" class="ui-widget-content ui-corner-all no_selection"></div>
+				</div>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="js/vis.js"></script>
 		<script type="text/javascript" src="js/mainview.js"></script>
+		<script type="text/javascript" src="js/hview.js"></script>
 		<script type="text/javascript" src="js/driver.js"></script>
 		<br>
 		<br>
-		<footer class="central">&copy; 2017 - Hanfei Lin - CS527 - UIUC</footer>
+		<footer class="central" style = "background-color: #ccc"> &copy; 2017 - Hanfei Lin - CS527 - UIUC</footer>
 	</body>
 </html>

@@ -25,6 +25,8 @@ def _data(dataname):
 	# data preprocessing
 	fpath = 'app/data/' + dataname.rstrip('.txt') + '/' + dataname
 	data = {}
+	graph = {}
+	source = []
 	node_id_map = {}
 	nodes = []
 	nodes_set = []
@@ -33,10 +35,14 @@ def _data(dataname):
 	with open(fpath) as f:
 		for line in f.readlines():
 			link = {}
+			row = {}
 			link['source'] = line.split()[0]
+			row['source'] = line.split()[0]
 			link['target'] = line.split()[1]
+			row['target'] = line.split()[1]
 			link['value'] = 1
 			links.append(link)
+			source.append(row)
 			nodes.append(link['source'])
 			nodes.append(link['target'])
 
@@ -61,8 +67,11 @@ def _data(dataname):
 		link['source'] = node_id_map[link['source']]
 		link['target'] = node_id_map[link['target']]
 
-	data['links'] = links
-	data['nodes'] = nodes_set
+	graph['links'] = links
+	graph['nodes'] = nodes_set
+
+	data["source"] = source
+	data["graph"] = graph
 
 	return json.dumps(data)
 
