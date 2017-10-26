@@ -33,10 +33,9 @@ vis.mainview = function(){
 	///////////////////////////////////////////////////
 	// Public Function
 	mainview.layout = function() {
-		console.log(data)
 
-		size[0] = parseInt(container.style("width")) + 200;
-		size[1] = parseInt(container.style("height")) + 250;
+		size[0] = parseInt(container.style("width"));
+		size[1] = parseInt(container.style("height"));
 
 		return mainview;
 	};
@@ -58,8 +57,8 @@ vis.mainview = function(){
 		var graph = container.append("svg")
 			.style("width", size[0])
 			.style("height", size[1])
-			.style("margin-left", -100)
-			.style("margin-top", -125)
+			.style("margin-left", margin.left)
+			.style("margin-top", margin.top)
 
 		function zoomed() {
 			graph.attr("transform", "translate(" + d3.event.transform.x + ',' + d3.event.transform.y + ")scale(" + d3.event.transform.k + ")");

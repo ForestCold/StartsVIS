@@ -5,6 +5,8 @@
 */
 
 var mainview = vis.mainview();
+var overview = vis.overview();
+var vview = vis.vview();
 var hview = vis.hview();
 
 // layout UI and setup events
@@ -51,5 +53,6 @@ function display() {
 		}
 		hview.container(d3.select("#hview")).data(json.source).layout().render();
 		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
+		overview.container(d3.select("#overview")).data(json.graph).layout().render();
 	});
 };
