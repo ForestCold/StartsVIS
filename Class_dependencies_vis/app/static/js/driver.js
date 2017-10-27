@@ -38,6 +38,7 @@ function display() {
 	// clean contents
 	d3.select("#mainview").selectAll("*").remove();
 	d3.select("#hview").selectAll("*").remove();
+	d3.select("#overview").selectAll("*").remove();
 
 	// load datasets
 	var data = $('#dataset').val();
@@ -51,8 +52,26 @@ function display() {
 			console.log(error)
 			return;
 		}
+
 		hview.container(d3.select("#hview")).data(json.source).layout().render();
 		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
 		overview.container(d3.select("#overview")).data(json.graph).layout().render();
+
+		wire_views();
 	});
+
+
 };
+
+function wire_views(){
+
+	//overview
+	overview.dispatch.on('mouseover', function(group) {
+			mainview.showGroup(group, true);
+	});
+
+	overview.dispatch.on('mouseout', function(group) {
+			mainview.showGroup(group, false);
+	});
+
+}

@@ -48,7 +48,7 @@ vis.mainview = function(){
     	.force("charge", d3.forceManyBody())
     	.force("center", d3.forceCenter(size[0] / 2, size[1] / 2));
 
-		var color = d3.scaleOrdinal(d3.schemeCategory20);
+		var color = d3.scaleOrdinal(d3.schemeCategory20).domain(d3.range(1, 16));
 
 		var zoom = d3.zoom()
 				.scaleExtent([1, 10])
@@ -87,8 +87,9 @@ vis.mainview = function(){
 
 		var circles = node.append("circle")
 			.attr("class", "classNode")
+			.attr("id", function(d){return "c" + d.id;})
       .attr("r", function(d) {return Math.sqrt(d.size);})
-      .attr("fill", function(d) {return color(d.group);})
+      .attr("fill", function(d) {return color(d.group.id);})
 			.on("mouseover", function(d) {
 
 				//add tooltip to show the class name
@@ -163,6 +164,17 @@ vis.mainview = function(){
 
 	mainview.update = function() {
 		return mainview;
+	};
+
+	mainview.showGroup = function(group, show){
+		if (show){
+			container.selectAll(".classNode").classed("classNodeUnlight", true);
+			for (var i = 0; i < group.nodes.length; i++){
+				container.select("#c" + group.nodes[i].id).classed("classNodeUnlight", false);
+			}
+		} else {
+			container.selectAll(".classNode").classed("classNodeUnlight", false);
+		}
 	};
 
 	///////////////////////////////////////////////////

@@ -74,6 +74,7 @@ div.no_selection {
     height: 37.5%;
     padding: 0 4px 0 4px;
     margin: 2px 0 2px 0;
+    overflow: scroll;
 }
 
 #levelview {
@@ -139,6 +140,15 @@ div.no_selection {
   line-height: 70px;
 }
 
+#head span{
+  font-size: 36px;
+  font-family: sans-serif;
+  color: #212121;
+  margin: 20px;
+  line-height: 70px;
+  font-weight: bold;
+}
+
 .footer {
   font-family: sans-serif;
 }
@@ -158,6 +168,10 @@ div.no_selection {
 .classNodeHightlight {
   stroke: #555;
   stroke-width: 2px;
+}
+
+.classNodeUnlight {
+  fill: #ccc;
 }
 
 div.tooltip {
@@ -197,3 +211,19 @@ div.tooltip {
 .sourceTable th.aes:after {
     content: "\21E7";
   }
+
+/*group view style*/
+
+.bar {
+  /*fill: steelblue;*/
+}
+
+.bar:hover {
+  stroke: #555;
+  stroke-width: 2px;
+  fill: "grey";
+}
+
+.axis--x path {
+  display: none;
+}

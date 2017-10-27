@@ -76,30 +76,58 @@ def _data(dataname):
 	return json.dumps(data)
 
 def cal_group(node):
+
+	id = 16
+	name = "others"
+
 	if node.find("junit.internal") > -1:
-		return 1
-	if node.find("apache") > -1:
-		return 2
-	if node.find("hamcrest") > -1:
-		return 3
-	if node.find("util") > -1:
-		return 4
-	if node.find("servlet") > -1:
-		return 5
-	if node.find("portlet") > -1:
-		return 6
-	if node.find("junit.runners") > -1:
-		return 7
-	if node.find("junit.experimental") > -1:
-		return 8
-	if node.find("junit.validator") > -1:
-		return 9
-	if node.find("junit.framework") > -1:
-		return 10
-	if node.find("junit.Assume") > -1:
-		return 11
+		id = 1
+		name = "junit.internal"
 	if node.find("io") > -1:
-		return 12
+		id = 2
+		name = "java.io"
+	if node.find("hamcrest") > -1:
+		id = 3
+		name = "hamcrest"
+	if node.find("util") > -1:
+		id = 4
+		name = "java.util"
+	if node.find("servlet") > -1:
+		id = 5
+		name = "servlet"
+	if node.find("portlet") > -1:
+		id = 6
+		name = "portlet"
+	if node.find("junit.runner") > -1:
+		id = 7
+		name = "junit.runner"
+	if node.find("junit.experimental") > -1:
+		id = 8
+		name = "org.junit.experimental"
+	if node.find("junit.validator") > -1:
+		id = 9
+		name = "org.junit.validator"
+	if node.find("junit.framework") > -1:
+		id = 10
+		name = "org.junit.framework"
+	if node.find("junit.Assume") > -1:
+		id = 11
+		name = "org.junit.Assume"
+	if node.find("junit.rules") > -1:
+		id = 12
+		name = "org.junit.rules"
+	if node.find("apache.commons.io") > -1:
+		id = 13
+		name = "org.apache.commons.io"
+	if node.find("apache.commons.fileupload") > -1:
+		id = 14
+		name = "org.apache.commons.fileupload"
 	if node.find("lang") > -1:
-		return 13
-	return 14
+		id = 15
+		name = "lang"
+
+	group = {}
+	group["id"] = id
+	group["name"] = name
+
+	return group
