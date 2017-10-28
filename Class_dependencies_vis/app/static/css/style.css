@@ -159,6 +159,12 @@ div.no_selection {
   stroke-opacity: 0.6;
 }
 
+.highlightLinks {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+  stroke: #E96569
+}
+
 .classNode {
   stroke: #fff;
   stroke-width: 1.5px;

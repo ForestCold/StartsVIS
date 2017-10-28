@@ -94,6 +94,11 @@ def link_filter(gid):
 			if link not in cur_links:
 				cur_links.append(link)
 
+	index = 0
+	for link in cur_links:
+		link["id"] = index
+		index += 1
+
 	return cur_links
 
 @app.route('/data/<dataname>')
@@ -152,9 +157,13 @@ def _data(dataname):
 			nodes_set.append(node_info)
 		exist = 0
 
+	index = 0
 	for link in links:
 		link['source'] = node_id_map[link['source']]
 		link['target'] = node_id_map[link['target']]
+		link['id'] = index
+		index += 1
+
 
 	for index in node_id_map:
 		id_node_map[node_id_map[index]] = index

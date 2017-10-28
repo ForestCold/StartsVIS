@@ -73,6 +73,9 @@ vis.mainview = function(){
 			.selectAll("line")
 			.data(data.links)
 			.enter().append("line")
+			.attr("id", function(d){
+				return "l" + d.id;
+			})
 			.attr("stroke-width", function(d) { return Math.sqrt(1); })
 			.attr("stroke", function(d){
 				if (d.type == "virtual"){
@@ -106,10 +109,16 @@ vis.mainview = function(){
            .style("left", (d3.event.pageX) + 10 + "px")
            .style("top", (d3.event.pageY) + "px");
 
-				//hightlight the circle
+				//highlight the circle
 				d3.select(this).classed("classNode", false);
 				d3.select(this).classed("classNodeHightlight", true);
 
+				//highlight the links
+				for(var i = 0; i < data.links.length; i++){
+					if (data.links[i].source.id == d.id || data.links[i].target.id == d.id){
+						d3.select("#l" + data.links[i].id).classed("highlightLinks", true);
+					}
+				}
 			})
 
 			.on("mouseout", function(d){
@@ -117,6 +126,8 @@ vis.mainview = function(){
 				label.transition()
 						.duration(500)
 						.style("opacity", 0);
+
+				d3.selectAll("line").classed("highlightLinks", false);
 
 				d3.select(this).classed("classNode", true);
 				d3.select(this).classed("classNodeHightlight", false);
