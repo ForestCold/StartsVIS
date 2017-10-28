@@ -36,6 +36,8 @@ vis.overview = function(){
 			xAxis,
 			yAxis;
 
+	var selected = [];
+
 	///////////////////////////////////////////////////
 	// Public Function
 	overview.layout = function() {
@@ -44,6 +46,9 @@ vis.overview = function(){
 		size[1] = parseInt(container.style("height")) - margin.bottom;
 
     group = groupCaculator();
+		for (var i = 0; i < group.length; i++){
+			selected[group[i].id] = false;
+		}
 
 		formatPercent = d3.format(".0%");
 
@@ -92,8 +97,7 @@ vis.overview = function(){
 
 				dispatch.call("mouseover", this, d);
 
-			})
-			.on("mouseout", function(d){
+			}).on("mouseout", function(d){
 
 				var label = d3.select(".tooltip")
 					.style("opacity", 0);
@@ -105,7 +109,26 @@ vis.overview = function(){
 
 				dispatch.call("mouseout", this, d);
 
+			}).on("click", function(d){
+
+				if (selected[d.id] == true){
+					d3.select(this).classed("selected", false);
+					selected[d.id] = false;
+				} else {
+					d3.select(this).classed("selected", true);
+					selected[d.id] = true;
+				}
+
+				var select = [];
+				for (var i = 0; i < selected.length; i++){
+					if (selected[i]){
+						select.push(i);
+					}
+				}
+
+				dispatch.call("select", this, select);
 			})
+
 
 		return overview.update();
 	};
@@ -144,8 +167,6 @@ vis.overview = function(){
 				groupResult.push(group[i]);
 			}
 		}
-
-		console.log(groupResult);
 
 		return groupResult;
 	};

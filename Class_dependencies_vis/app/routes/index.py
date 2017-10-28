@@ -6,6 +6,16 @@ from app import app
 from flask import Flask, request
 
 debug = False
+source = []
+nodes = []
+links = []
+nodes_set = []
+
+fathers = {}
+children = {}
+node_id_map = {}
+id_node_map = {}
+remove_nodes = []
 
 @app.route('/')
 def root():
@@ -20,17 +30,78 @@ def _list():
 
 	return json.dumps(datalist)
 
+@app.route('/group/<group_id>')
+def _group_filter(group_id):
+
+	gid = group_id.split(",")
+
+	data = {}
+	data["source"] = source
+	data["graph"] = {
+		"nodes" : node_filter(gid),
+		"links" : link_filter(gid)
+	}
+
+	return json.dumps(data)
+
+def node_filter(gid):
+
+	global remove_nodes
+	remove_nodes = []
+	cur_nodes = []
+
+	for node in nodes_set:
+		for i in gid:
+			if node["group"]["id"] == int(i):
+				remove_nodes.append(node["id"])
+
+	for node in nodes_set:
+		if node["id"] not in remove_nodes:
+			cur_nodes.append(node)
+
+	return cur_nodes
+
+def link_filter(gid):
+
+	global remove_nodes
+	remove_links = []
+	cur_links = []
+	n = -1
+
+	for link in links:
+
+		if link["source"] in remove_nodes:
+			n = link["source"]
+			remove_links.append(link)
+
+		if link["target"] in remove_nodes:
+			n = link["target"]
+			remove_links.append(link)
+
+		if n >= 0 and fathers[n]:
+			for father in fathers[n]:
+				if father not in remove_nodes:
+					for child in children[n]:
+						if child not in remove_nodes:
+							link = {
+								"source": father,
+								"target": child,
+								"value": 1
+								}
+							if link not in cur_links:
+								cur_links.append(link)
+
+	for link in links:
+		if link not in remove_links:
+			if link not in cur_links:
+				cur_links.append(link)
+
+	return cur_links
+
 @app.route('/data/<dataname>')
 def _data(dataname):
 	# data preprocessing
 	fpath = 'app/data/' + dataname.rstrip('.txt') + '/' + dataname
-	data = {}
-	graph = {}
-	source = []
-	node_id_map = {}
-	nodes = []
-	nodes_set = []
-	links = []
 
 	with open(fpath) as f:
 		for line in f.readlines():
@@ -67,14 +138,25 @@ def _data(dataname):
 		link['source'] = node_id_map[link['source']]
 		link['target'] = node_id_map[link['target']]
 
-	graph['links'] = links
-	graph['nodes'] = nodes_set
+	for index in node_id_map:
+		id_node_map[node_id_map[index]] = index
+		fathers[node_id_map[index]] = []
+		children[node_id_map[index]] = []
 
+	for record in source:
+		fathers[node_id_map[record["target"]]].append(node_id_map[record["source"]])
+		children[node_id_map[record["source"]]].append(node_id_map[record["target"]])
+
+	data = {}
 	data["source"] = source
-	data["graph"] = graph
+	data["graph"] = {
+		"links" : links,
+		"nodes" : nodes_set
+	}
 
 	return json.dumps(data)
 
+# private function
 def cal_group(node):
 
 	id = 16

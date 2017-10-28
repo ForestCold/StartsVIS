@@ -219,9 +219,12 @@ div.tooltip {
 }
 
 .bar:hover {
+  fill: #FFF9BF;
+}
+
+.selected {
   stroke: #555;
   stroke-width: 2px;
-  fill: "grey";
 }
 
 .axis--x path {

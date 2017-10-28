@@ -20,21 +20,21 @@ $(document).ready(function() {
 				"<option>" + name + "</option>"
 			);
 		});
-		display();
+
+		var dataUrl = "data/" + $('#dataset').val() + ".txt";
+		display(dataUrl);
 	});
 
 	$("#tabs").tabs();
 	$("#tablists").tabs();
 
-	wire_events();
+	wire_views();
 });
 
 //////////////////////////////////////////////////////////////////////
 // local functions
-function wire_events() {
-};
 
-function display() {
+function display(url) {
 	// clean contents
 	d3.select("#mainview").selectAll("*").remove();
 	d3.select("#hview").selectAll("*").remove();
@@ -46,8 +46,7 @@ function display() {
 		return;
 	}
 
-	var dataUrl = "data/" + $('#dataset').val() + ".txt";
-	d3.json(dataUrl, function(error, json) {
+	d3.json(url, function(error, json) {
 		if (error) {
 			console.log(error)
 			return;
@@ -57,10 +56,7 @@ function display() {
 		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
 		overview.container(d3.select("#overview")).data(json.graph).layout().render();
 
-		wire_views();
 	});
-
-
 };
 
 function wire_views(){
@@ -72,6 +68,16 @@ function wire_views(){
 
 	overview.dispatch.on('mouseout', function(group) {
 			mainview.showGroup(group, false);
+	});
+
+	overview.dispatch.on('select', function(selected) {
+
+			console.log(selected);
+
+			var groupUrl = "group/" + selected;
+	d3.json(groupUrl, function(error, json) {console.log(json)});
+			// display(groupUrl);
+
 	});
 
 }
