@@ -73,7 +73,12 @@ vis.mainview = function(){
 			.selectAll("line")
 			.data(data.links)
 			.enter().append("line")
-			.attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+			.attr("stroke-width", function(d) { return Math.sqrt(1); })
+			.attr("stroke", function(d){
+				if (d.type == "virtual"){
+					return "#6D9AD2";
+				} return "#999";
+			})
 
 		//draw nodes
 		var node = graph.append("g")

@@ -47,17 +47,14 @@ def _group_filter(group_id):
 def node_filter(gid):
 
 	global remove_nodes
-	remove_nodes = []
 	cur_nodes = []
+	remove_nodes = []
 
 	for node in nodes_set:
-		for i in gid:
-			if node["group"]["id"] == int(i):
-				remove_nodes.append(node["id"])
-
-	for node in nodes_set:
-		if node["id"] not in remove_nodes:
+		if unicode(node["group"]["id"]) in gid:
 			cur_nodes.append(node)
+		else:
+			remove_nodes.append(node["id"])
 
 	return cur_nodes
 
@@ -86,7 +83,8 @@ def link_filter(gid):
 							link = {
 								"source": father,
 								"target": child,
-								"value": 1
+								"value": 1,
+								"type": "virtual"
 								}
 							if link not in cur_links:
 								cur_links.append(link)
@@ -103,6 +101,25 @@ def _data(dataname):
 	# data preprocessing
 	fpath = 'app/data/' + dataname.rstrip('.txt') + '/' + dataname
 
+	# change dataset, init paras
+	global node_id_map
+	global id_node_map
+	global fathers
+	global children
+	global nodes_set
+	global nodes
+	global links
+	global source
+	fathers = {}
+	children = {}
+	node_id_map = {}
+	id_node_map = {}
+	nodes_set = []
+	source = []
+	nodes = []
+	links = []
+
+	# open file, define nodes, links, source
 	with open(fpath) as f:
 		for line in f.readlines():
 			link = {}
@@ -112,6 +129,7 @@ def _data(dataname):
 			link['target'] = line.split()[1]
 			row['target'] = line.split()[1]
 			link['value'] = 1
+			link['type'] = "real"
 			links.append(link)
 			source.append(row)
 			nodes.append(link['source'])

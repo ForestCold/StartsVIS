@@ -21,8 +21,7 @@ $(document).ready(function() {
 			);
 		});
 
-		var dataUrl = "data/" + $('#dataset').val() + ".txt";
-		display(dataUrl);
+		display();
 	});
 
 	$("#tabs").tabs();
@@ -34,7 +33,7 @@ $(document).ready(function() {
 //////////////////////////////////////////////////////////////////////
 // local functions
 
-function display(url) {
+function display() {
 	// clean contents
 	d3.select("#mainview").selectAll("*").remove();
 	d3.select("#hview").selectAll("*").remove();
@@ -45,6 +44,8 @@ function display(url) {
 	if(!data || data == '') {
 		return;
 	}
+
+	var url = "data/" + $('#dataset').val() + ".txt";
 
 	d3.json(url, function(error, json) {
 		if (error) {
@@ -72,12 +73,19 @@ function wire_views(){
 
 	overview.dispatch.on('select', function(selected) {
 
-			console.log(selected);
+		var groupUrl = "group/" + selected;
+		d3.select("#mainview").selectAll("*").remove();
 
-			var groupUrl = "group/" + selected;
-	d3.json(groupUrl, function(error, json) {console.log(json)});
-			// display(groupUrl);
+		d3.json(groupUrl, function(error, json) {
 
+			if (error) {
+				console.log(error)
+				return;
+			}
+
+			mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
+
+		});
 	});
 
 }
