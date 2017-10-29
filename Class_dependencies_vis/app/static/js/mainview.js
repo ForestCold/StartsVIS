@@ -29,6 +29,10 @@ vis.mainview = function(){
 
 	///////////////////////////////////////////////////
 	// Private Parameters
+	var nodes = [],
+			links = [],
+			simulation,
+			color;
 
 	///////////////////////////////////////////////////
 	// Public Function
@@ -43,12 +47,12 @@ vis.mainview = function(){
 	mainview.render = function() {
 
 		//init
-		var simulation = d3.forceSimulation()
+		simulation = d3.forceSimulation()
     	.force("link", d3.forceLink().id(function(d) { return d.id; }))
     	.force("charge", d3.forceManyBody())
     	.force("center", d3.forceCenter(size[0] / 2, size[1] / 2));
 
-		var color = d3.scaleOrdinal(d3.schemeCategory20).domain(d3.range(1, 16));
+		color = d3.scaleOrdinal(d3.schemeCategory20).domain(d3.range(1, 16));
 
 		var zoom = d3.zoom()
 				.scaleExtent([1, 10])
@@ -68,7 +72,7 @@ vis.mainview = function(){
 						 .call(d3.drag());
 
 		//draw links
-		var link = graph.append("g")
+		link = graph.append("g")
 			.attr("class", "links")
 			.selectAll("line")
 			.data(data.links)
@@ -84,8 +88,9 @@ vis.mainview = function(){
 			})
 
 		//draw nodes
-		var node = graph.append("g")
+		node = graph.append("g")
 			.selectAll("g")
+			.attr("class", "gNode")
 			.data(data.nodes)
 			.enter().append("g")
 
@@ -109,28 +114,50 @@ vis.mainview = function(){
            .style("left", (d3.event.pageX) + 10 + "px")
            .style("top", (d3.event.pageY) + "px");
 
+				d3.selectAll("line").classed("unHighlightLinks", true);
+				d3.selectAll("circle").classed("classNodeUnlight", true);
+
 				//highlight the circle
 				d3.select(this).classed("classNode", false);
+				d3.select(this).classed("classNodeUnlight", false);
 				d3.select(this).classed("classNodeHightlight", true);
 
 				//highlight the links
 				for(var i = 0; i < data.links.length; i++){
-					if (data.links[i].source.id == d.id || data.links[i].target.id == d.id){
-						d3.select("#l" + data.links[i].id).classed("highlightLinks", true);
+					//red: children
+					if (data.links[i].source.id == d.id){
+						d3.select("#l" + data.links[i].id).classed("unHighlightLinks", false);
+						d3.select("#l" + data.links[i].id).classed("highlightLinks1", true);
+						d3.select("#c" + data.links[i].target.id).classed("classNodeUnlight", false);
+						d3.select("#c" + data.links[i].target.id).classed("classNodeHightlight", true);
+					}
+					//green: fathers
+					if (data.links[i].target.id == d.id){
+						d3.select("#l" + data.links[i].id).classed("unHighlightLinks", false);
+						d3.select("#l" + data.links[i].id).classed("highlightLinks2", true);
+						d3.select("#c" + data.links[i].source.id).classed("classNodeUnlight", false);
+						d3.select("#c" + data.links[i].source.id).classed("classNodeHightlight", true);
 					}
 				}
 			})
 
 			.on("mouseout", function(d){
+
 				//remove tooltip
 				label.transition()
 						.duration(500)
 						.style("opacity", 0);
 
-				d3.selectAll("line").classed("highlightLinks", false);
+				d3.selectAll("line").classed("highlightLinks1", false);
+				d3.selectAll("line").classed("highlightLinks2", false);
+				d3.selectAll("line").classed("unHighlightLinks", false);
+				d3.selectAll("circle").classed("classNodeUnlight", false);
+				d3.selectAll("circle").classed("classNodeHightlight", false);
 
 				d3.select(this).classed("classNode", true);
-				d3.select(this).classed("classNodeHightlight", false);
+			})
+			.on("click", function(d){
+				dispatch.call("select", this, d);
 			})
       .call(d3.drag()
           .on("start", dragstartedNode)
@@ -179,6 +206,10 @@ vis.mainview = function(){
 	};
 
 	mainview.update = function() {
+
+
+
+
 		return mainview;
 	};
 

@@ -174,6 +174,10 @@ def _data(dataname):
 		fathers[node_id_map[record["target"]]].append(node_id_map[record["source"]])
 		children[node_id_map[record["source"]]].append(node_id_map[record["target"]])
 
+	for node in nodes_set:
+		node["fathers"] = fathers[node["id"]]
+		node["children"] = children[node["id"]]
+
 	data = {}
 	data["source"] = source
 	data["graph"] = {

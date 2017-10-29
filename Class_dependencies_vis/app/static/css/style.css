@@ -159,10 +159,22 @@ div.no_selection {
   stroke-opacity: 0.6;
 }
 
-.highlightLinks {
+.highlightLinks1 {
   stroke-opacity: 1;
   stroke-width: 2px;
   stroke: #E96569
+}
+
+.highlightLinks2 {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+  stroke: #27B87F
+}
+
+.unHighlightLinks{
+  stroke-opacity: 0.5;
+  stroke-width: 1px;
+  stroke: #D6D6D6
 }
 
 .classNode {
@@ -172,12 +184,14 @@ div.no_selection {
 
 .classNodeHightlight {
   stroke: #555;
-  stroke-width: 2px;
+  stroke-width: 1.5px;
 }
 
 .classNodeUnlight {
   fill: #ccc;
 }
+
+
 
 div.tooltip {
     position: absolute;

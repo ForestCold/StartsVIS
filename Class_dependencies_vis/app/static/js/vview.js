@@ -1,5 +1,5 @@
 /*
-	Generate class dependencies graph
+	Show class information
 	Author : Hanfei Lin
 	Date: 10/14/2017
 */
@@ -9,6 +9,7 @@ vis.vview = function(){
 	var vview = {},
 		container = null,
 		data = null,
+		nodeInfo = null,
 		size = [960, 800],
 	 	margin = {left:10, top:10, right:10, bottom:10},
 		dispatch = d3.dispatch("select", "mouseover", "mouseout");
@@ -25,6 +26,12 @@ vis.vview = function(){
 		return vview;
 	};
 
+	vview.nodeInfo = function(_) {
+		if (!arguments.length) return nodeInfo;
+		nodeInfo = _;
+		return vview;
+	};
+
 	vview.dispatch = dispatch;
 
 	///////////////////////////////////////////////////
@@ -33,7 +40,8 @@ vis.vview = function(){
 	///////////////////////////////////////////////////
 	// Public Function
 	vview.layout = function() {
-
+		console.log(data)
+		console.log(nodeInfo)
 		return vview;
 	};
 

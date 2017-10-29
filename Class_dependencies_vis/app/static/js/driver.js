@@ -56,6 +56,7 @@ function display() {
 		hview.container(d3.select("#hview")).data(json.source).layout().render();
 		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
 		overview.container(d3.select("#overview")).data(json.graph).layout().render();
+		vview.data(json.graph);
 
 	});
 };
@@ -83,9 +84,15 @@ function wire_views(){
 				return;
 			}
 
-			mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
+			mainview.data(json.graph).render();
+			vview.data(json.graph);
 
 		});
+	});
+
+	//mainview
+	mainview.dispatch.on('select', function(nodeInfo) {
+		vview.nodeInfo(nodeInfo).layout().render();
 	});
 
 }
