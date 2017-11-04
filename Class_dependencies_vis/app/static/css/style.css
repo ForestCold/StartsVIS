@@ -153,6 +153,26 @@ div.no_selection {
   font-family: sans-serif;
 }
 
+input {
+  width: 130px;
+  height: 20px;
+  background-color: #eeeeee;
+  border:none;
+  border-top-left-radius:5px;
+  border-bottom-left-radius:5px;
+  font: bold 12px 'lucida sans', 'trebuchet MS', 'Tahoma';
+}
+
+button{
+  width:60px;
+  height: 22px;
+  background-color:#d93c3c;
+  color:#fff;
+  border:none;
+  border-radius:0 5px 5px 0;
+  position: relative;
+}
+
 /* mainview style*/
 
 .links line {
@@ -185,6 +205,11 @@ div.no_selection {
 .classNodeHightlight {
   stroke: #555;
   stroke-width: 1.5px;
+}
+
+.classNodeSelected {
+  stroke: #FFEF82;
+  stroke-width: 5px;
 }
 
 .classNodeUnlight {

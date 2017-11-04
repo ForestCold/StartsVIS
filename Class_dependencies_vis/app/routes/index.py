@@ -171,8 +171,8 @@ def _data(dataname):
 		children[node_id_map[index]] = []
 
 	for record in source:
-		fathers[node_id_map[record["target"]]].append(node_id_map[record["source"]])
-		children[node_id_map[record["source"]]].append(node_id_map[record["target"]])
+		fathers[node_id_map[record["source"]]].append(node_id_map[record["target"]])
+		children[node_id_map[record["target"]]].append(node_id_map[record["source"]])
 
 	for node in nodes_set:
 		node["fathers"] = fathers[node["id"]]

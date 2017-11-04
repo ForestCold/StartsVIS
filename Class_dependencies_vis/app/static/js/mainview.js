@@ -31,8 +31,9 @@ vis.mainview = function(){
 	// Private Parameters
 	var nodes = [],
 			links = [],
-			simulation,
-			color;
+			selected = [];
+			simulation = null,
+			color = null;
 
 	///////////////////////////////////////////////////
 	// Public Function
@@ -40,6 +41,10 @@ vis.mainview = function(){
 
 		size[0] = parseInt(container.style("width"));
 		size[1] = parseInt(container.style("height"));
+
+		for(var i = 0; i < data.nodes.length; i++){
+			selected[data.nodes[i].id] = false;
+		}
 
 		return mainview;
 	};
@@ -117,28 +122,14 @@ vis.mainview = function(){
 				d3.selectAll("line").classed("unHighlightLinks", true);
 				d3.selectAll("circle").classed("classNodeUnlight", true);
 
-				//highlight the circle
-				d3.select(this).classed("classNode", false);
-				d3.select(this).classed("classNodeUnlight", false);
-				d3.select(this).classed("classNodeHightlight", true);
-
-				//highlight the links
-				for(var i = 0; i < data.links.length; i++){
-					//red: children
-					if (data.links[i].source.id == d.id){
-						d3.select("#l" + data.links[i].id).classed("unHighlightLinks", false);
-						d3.select("#l" + data.links[i].id).classed("highlightLinks1", true);
-						d3.select("#c" + data.links[i].target.id).classed("classNodeUnlight", false);
-						d3.select("#c" + data.links[i].target.id).classed("classNodeHightlight", true);
-					}
-					//green: fathers
-					if (data.links[i].target.id == d.id){
-						d3.select("#l" + data.links[i].id).classed("unHighlightLinks", false);
-						d3.select("#l" + data.links[i].id).classed("highlightLinks2", true);
-						d3.select("#c" + data.links[i].source.id).classed("classNodeUnlight", false);
-						d3.select("#c" + data.links[i].source.id).classed("classNodeHightlight", true);
+				for (i in selected){
+					if (selected[i]){
+						highlight(i, true);
 					}
 				}
+
+				highlight(d.id, true);
+
 			})
 
 			.on("mouseout", function(d){
@@ -148,16 +139,36 @@ vis.mainview = function(){
 						.duration(500)
 						.style("opacity", 0);
 
-				d3.selectAll("line").classed("highlightLinks1", false);
-				d3.selectAll("line").classed("highlightLinks2", false);
-				d3.selectAll("line").classed("unHighlightLinks", false);
-				d3.selectAll("circle").classed("classNodeUnlight", false);
-				d3.selectAll("circle").classed("classNodeHightlight", false);
+				if (!selected[d.id]){
+					highlight(d.id, false);
+				}
 
-				d3.select(this).classed("classNode", true);
+				for (i in selected){
+					if (selected[i]){
+						highlight(i, true);
+					}
+				}
+
 			})
 			.on("click", function(d){
-				dispatch.call("select", this, d);
+
+				var flag = selected[d.id];
+
+				for (i in selected){
+					selected[i] = false;
+				}
+
+				highlight(-1, false);
+
+				flag ? selected[d.id] = false : selected[d.id] = true;
+
+				if (selected[d.id]){
+					highlight(d.id, true);
+				} else {
+					highlight(d.id, false);
+				}
+
+				dispatch.call("select", this, d, selected[d.id]);
 			})
       .call(d3.drag()
           .on("start", dragstartedNode)
@@ -213,6 +224,41 @@ vis.mainview = function(){
 		return mainview;
 	};
 
+	mainview.select = function(className) {
+
+		var d = null;
+
+		console.log(data.nodes[0])
+
+		for (var i = 0; i < data.nodes.length; i++){
+			if (data.nodes[i].value == className){
+				d = data.nodes[i];
+			}
+		}
+
+		if (d == null){
+			return;
+		}
+		
+		var flag = selected[d.id];
+
+		for (i in selected){
+			selected[i] = false;
+		}
+
+		highlight(-1, false);
+
+		flag ? selected[d.id] = false : selected[d.id] = true;
+
+		if (selected[d.id]){
+			highlight(d.id, true);
+		} else {
+			highlight(d.id, false);
+		}
+
+		dispatch.call("select", this, d, selected[d.id]);
+	}
+
 	mainview.showGroup = function(group, show){
 		if (show){
 			container.selectAll(".classNode").classed("classNodeUnlight", true);
@@ -227,8 +273,48 @@ vis.mainview = function(){
 	///////////////////////////////////////////////////
 	// Private Functions
 
-	function private_function1() {
+	function highlight(j, flag) {
 
+		if (!flag){
+
+			d3.selectAll("line").classed("highlightLinks1", false);
+			d3.selectAll("line").classed("highlightLinks2", false);
+			d3.selectAll("line").classed("unHighlightLinks", false);
+			d3.selectAll("circle").classed("classNodeUnlight", false);
+			d3.selectAll("circle").classed("classNodeHightlight", false);
+			d3.selectAll("circle").classed("classNodeSelected", false);
+
+			if (j != -1){
+				d3.select("#c" + j).classed("classNode", true);
+			} else {
+				d3.selectAll("circle").classed("classNode", true);
+			}
+
+			return;
+		}
+
+		//highlight the circle
+		d3.select("#c" + j).classed("classNode", false);
+		d3.select("#c" + j).classed("classNodeUnlight", false);
+		d3.select("#c" + j).classed("classNodeSelected", true);
+
+		//highlight the links
+		for(var i = 0; i < data.links.length; i++){
+			//red: children
+			if (data.links[i].source.id == j){
+				d3.select("#l" + data.links[i].id).classed("unHighlightLinks", false);
+				d3.select("#l" + data.links[i].id).classed("highlightLinks1", true);
+				d3.select("#c" + data.links[i].target.id).classed("classNodeUnlight", false);
+				d3.select("#c" + data.links[i].target.id).classed("classNodeHightlight", true);
+			}
+			//green: fathers
+			if (data.links[i].target.id == j){
+				d3.select("#l" + data.links[i].id).classed("unHighlightLinks", false);
+				d3.select("#l" + data.links[i].id).classed("highlightLinks2", true);
+				d3.select("#c" + data.links[i].source.id).classed("classNodeUnlight", false);
+				d3.select("#c" + data.links[i].source.id).classed("classNodeHightlight", true);
+			}
+		}
 	};
 
 	function private_function2() {

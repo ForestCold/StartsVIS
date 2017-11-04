@@ -33,6 +33,11 @@ $(document).ready(function() {
 //////////////////////////////////////////////////////////////////////
 // local functions
 
+function search() {
+	var className = $("#cn").val();
+	mainview.select(className);
+}
+
 function display() {
 	// clean contents
 	d3.select("#mainview").selectAll("*").remove();
@@ -91,8 +96,13 @@ function wire_views(){
 	});
 
 	//mainview
-	mainview.dispatch.on('select', function(nodeInfo) {
-		vview.nodeInfo(nodeInfo).layout().render();
+	mainview.dispatch.on('select', function(nodeInfo, selected) {
+		if (selected){
+			vview.nodeInfo(nodeInfo).layout().render();
+		} else {
+			d3.select("#vview").selectAll("*").remove();
+		}
+
 	});
 
 }
