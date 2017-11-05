@@ -43,6 +43,7 @@ function display() {
 	d3.select("#mainview").selectAll("*").remove();
 	d3.select("#hview").selectAll("*").remove();
 	d3.select("#overview").selectAll("*").remove();
+	d3.select("#vview").selectAll("*").remove();
 
 	// load datasets
 	var data = $('#dataset').val();
@@ -61,6 +62,7 @@ function display() {
 		hview.container(d3.select("#hview")).data(json.source).layout().render();
 		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
 		overview.container(d3.select("#overview")).data(json.graph).layout().render();
+
 		vview.data(json.graph);
 
 	});
@@ -81,6 +83,7 @@ function wire_views(){
 
 		var groupUrl = "group/" + selected;
 		d3.select("#mainview").selectAll("*").remove();
+		d3.select("#vview").selectAll("*").remove();
 
 		d3.json(groupUrl, function(error, json) {
 
@@ -97,12 +100,12 @@ function wire_views(){
 
 	//mainview
 	mainview.dispatch.on('select', function(nodeInfo, selected) {
-		if (selected){
-			vview.nodeInfo(nodeInfo).layout().render();
-		} else {
-			d3.select("#vview").selectAll("*").remove();
-		}
 
+		d3.select("#vview").selectAll("*").remove();
+		if (selected){
+			vview.container(d3.select("#vview")).nodeInfo(nodeInfo).layout().render();
+		}
+		
 	});
 
 }
