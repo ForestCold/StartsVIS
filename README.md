@@ -1,5 +1,5 @@
-# College Magnifier
-A data visualization system for choosing the best universities
+# CS527 project
+A types dependencies visualization system for STARTS
 
 ## Development
 
