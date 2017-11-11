@@ -28,6 +28,23 @@ $(document).ready(function() {
 	$("#tabs").tabs();
 	$("#tablists").tabs();
 
+	$('#showAs').change(function(){
+		if (this.checked){
+			vview.showAs("type");
+		} else {
+			vview.showAs("group");
+		}
+		vview.update("type");
+	})
+	$('#relationship').change(function(){
+		if (this.checked){
+			vview.relationship("children");
+		} else {
+			vview.relationship("fathers");
+		}
+		vview.update("relationship");
+	})
+
 	wire_views();
 });
 
@@ -95,7 +112,6 @@ function wire_views(){
 			}
 
 			mainview.data(json.graph).render();
-			vview.data(json.graph);
 
 		});
 	});
@@ -105,6 +121,19 @@ function wire_views(){
 
 		d3.select("#vview").selectAll("*").remove();
 		if (selected){
+
+			var showAs = $('#showAs').prop('checked');
+			var relationship = $('#relationship').prop('checked');
+			if (showAs){
+				vview.showAs("type");
+			} else {
+				vview.showAs("group");
+			}
+			if (relationship){
+				vview.relationship("children");
+			} else {
+				vview.relationship("fathers");
+			}
 			vview.container(d3.select("#vview")).nodeInfo(nodeInfo).layout().render();
 		}
 
@@ -122,10 +151,7 @@ function wire_views(){
 				console.log(error)
 				return;
 			}
-
 			mainview.data(json.graph).render();
-			vview.data(json.graph);
-
 		});
 
 	});

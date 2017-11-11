@@ -19,7 +19,19 @@ vis.vview = function() {
       right: 10,
       bottom: 10
     },
+    relationship = "fathers",
+    showAs = "group",
     dispatch = d3.dispatch("select", "mouseover", "mouseout");
+
+  vview.relationship = function(_){
+    relationship = _;
+    return vview;
+  }
+
+  vview.showAs = function(_){
+    showAs = _;
+    return vview;
+  }
 
   vview.container = function(_) {
     if (!arguments.length)
@@ -47,7 +59,10 @@ vis.vview = function() {
   ///////////////////////////////////////////////////
   // Private Parameters
   var visited = [],
-    treeRoot = null;
+    treeRoot = null,
+    color = null,
+    showAsTxt = null,
+    showRelationTxt = null;
 
   ///////////////////////////////////////////////////
   // Public Function
@@ -55,11 +70,14 @@ vis.vview = function() {
 
     treeRoot = {
       "name": nodeInfo.value,
+      "type": nodeInfo.type,
+      "group": nodeInfo.group,
       "children": []
     };
 
     visited = [];
     buildTree(treeRoot, nodeInfo);
+    color = d3.scaleOrdinal(d3.schemeCategory20).domain(d3.range(1, 16));
 
     return vview;
   };
@@ -70,6 +88,15 @@ vis.vview = function() {
     size[1] = parseInt(container.style("height")) - margin.top - margin.bottom;
 
     var svg = container.append("svg").attr("width", size[0] + margin.right + margin.left).attr("height", size[1] + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    showAsTxt = svg.append("text").text("color by " + showAs).attr("transform", function(d) {
+      return "translate(" + (size[0] - margin.right - 100) + "," + (margin.top) + ")";
+    })
+
+    showRelationTxt = svg.append("text").text("show " + relationship).attr("transform", function(d) {
+      return "translate(" + (size[0] - margin.right - 100) + "," + (margin.top + 20) + ")";
+    })
+
 
     var i = 0,
       duration = 750,
@@ -88,9 +115,12 @@ vis.vview = function() {
     // Collapse after the second level
 
     if (root.data.children.length == 0){
-      svg.append("text").text("no child")
+      svg.append("text").text("Oh no, this " + root.data.type + " doesn't have " + relationship + "!").attr("transform", function(d) {
+        return "translate(" + (size[0] + margin.left + margin.right - this.getComputedTextLength()) / 2 + "," + (size[1] + margin.top + margin.bottom) / 2 + ")";
+      })
       return;
     }
+
     root.children.forEach(collapse);
 
     update(root);
@@ -119,13 +149,27 @@ vis.vview = function() {
         return d.id || (d.id = ++i);
       });
 
+      var label = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
       // Enter any new modes at the parent's previous position.
       var nodeEnter = node.enter().append('g').attr('class', 'node').attr("transform", function(d) {
         return "translate(" + source.x0 + "," + source.y0 + ")";
-      }).on('click', click);
+      }).on('mouseover', function(d){
+        //add tooltip to show the class name
+        label.transition().duration(200).style("opacity", .9)
+
+        label.html(d.data.name).style("left", (d3.event.pageX) + 10 + "px").style("top", (d3.event.pageY) + "px");
+      }).on('mouseout', function(d){
+        label.transition().duration(200).style("opacity", 0)
+      })
+      .on('click', click);
 
       // Add Circle for the nodes
-      nodeEnter.append('circle').attr('class', 'node').attr('r', 1e-6).style("fill", function(d) {
+      nodeEnter.append('circle').attr('class', 'node').attr('r', function(d){
+        return d._children
+          ? 1e-6
+          : 1
+      }).style("fill", function(d) {
         return d._children
           ? "lightsteelblue"
           : "#fff";
@@ -140,10 +184,23 @@ vis.vview = function() {
       });
 
       // Update the node attributes and style
-      nodeUpdate.select('circle.node').attr('r', 10).style("fill", function(d) {
+      nodeUpdate.select('circle.node').attr('r', function(d){
         return d._children
-          ? "lightsteelblue"
-          : "#fff";
+          ? 10
+          : 6
+      }).style("fill", function(d) {
+        if (showAs == "group"){
+          return color(d.data.group.id);
+        } else if (showAs == "type"){
+          if (d.data.type == "test"){
+            return "#E6F2FB"
+          } else if (d.data.type == "class"){
+            return "#F9EEC9"
+          } else {
+            return "#D3EED9"
+          }
+        }
+
       }).attr('cursor', 'pointer');
 
       // Remove any exiting nodes
@@ -220,10 +277,42 @@ vis.vview = function() {
       }
     }
 
-    return vview.update();
+    return vview;
   };
 
-  vview.update = function() {
+  vview.update = function(para) {
+
+    if (nodeInfo == null){
+      return;
+    }
+
+    if (para == "relationship"){
+        container.selectAll("*").remove();
+        vview.layout().render();
+        return;
+    }
+
+    console.log(container.selectAll('.node'))
+
+    showAsTxt.text("color by " + showAs);
+
+    container.selectAll('.node')
+    .transition().duration(200)
+    .style("fill",function(d){
+      if (showAs == "group"){
+        return color(d.data.group.id);
+      } else if (showAs == "type"){
+        if (d.data.type == "test"){
+          return "#E6F2FB"
+        } else if (d.data.type == "class"){
+          return "#F9EEC9"
+        } else {
+          return "#D3EED9"
+        }
+      }
+    })
+
+
     return vview;
   };
 
@@ -232,26 +321,29 @@ vis.vview = function() {
 
   function buildTree(root, rootNode) {
 
-    if (rootNode.children.length == 0) {
+    if (rootNode[relationship].length == 0) {
       return;
     }
 
-    for (var i = 0; i < rootNode.children.length; i++) {
-      if (rootNode.children[i] in visited) {
+    for (var i = 0; i < rootNode[relationship].length; i++) {
+      if (rootNode[relationship][i] in visited) {
         continue;
       }
-      visited.push(rootNode.children[i]);
-      var next = data.nodes[rootNode.children[i]].value;
+      if (! (rootNode[relationship][i] in data.nodes)){
+        continue;
+      }
+      visited.push(rootNode[relationship][i]);
+      var next = data.nodes[rootNode[relationship][i]];
       var h = {
-        "name": next,
+        "name": next.value,
+        "type": next.type,
+        "group": next.group,
         "children": []
       }
-      root["children"].push(h);
-      buildTree(root["children"][root.children.length - 1], data.nodes[rootNode.children[i]]);
+      root.children.push(h);
+      buildTree(root.children[root.children.length - 1], data.nodes[rootNode[relationship][i]]);
     }
   }
-
-  function private_function2() {};
 
   function private_function3() {};
 
