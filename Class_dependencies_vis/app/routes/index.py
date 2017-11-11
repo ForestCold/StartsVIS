@@ -1,6 +1,5 @@
 import json
 import os
-import numpy
 
 from app import app
 from flask import Flask, request
@@ -10,6 +9,11 @@ source = []
 nodes = []
 links = []
 nodes_set = []
+
+data = {}
+tests = []
+jdes = []
+classes = []
 
 fathers = {}
 children = {}
@@ -43,6 +47,117 @@ def _group_filter(group_id):
 	}
 
 	return json.dumps(data)
+
+#load data
+@app.route('/data/<dataname>')
+def _load(dataname):
+
+	fgraph = 'app/data/' + dataname + '/' + "graph.txt"
+	ftest = 'app/data/' + dataname + '/' + "all-tests"
+	fjdes = 'app/data/' + dataname + '/' + "jdeps-out"
+
+	load_tests(ftest)
+	load_jdes(fjdes)
+	load_graph(fgraph)
+
+	return json.dumps(data)
+
+def load_graph(fpath):
+
+	# change dataset, init paras
+	global node_id_map
+	global id_node_map
+	global fathers
+	global children
+	global nodes_set
+	global nodes
+	global links
+	global source
+	global data
+
+	fathers = {}
+	children = {}
+	node_id_map = {}
+	id_node_map = {}
+	nodes_set = []
+	source = []
+	nodes = []
+	links = []
+
+	# open file, define nodes, links, source
+	with open(fpath) as f:
+		for line in f.readlines():
+			link = {}
+			row = {}
+			link['source'] = line.split()[0]
+			row['source'] = line.split()[0]
+			link['target'] = line.split()[1]
+			row['target'] = line.split()[1]
+			link['value'] = 1
+			link['type'] = "real"
+			links.append(link)
+			source.append(row)
+			nodes.append(link['source'])
+			nodes.append(link['target'])
+
+	exist = 0
+	for node in nodes:
+		for node_info in nodes_set:
+			if node_info["value"] == node:
+				node_info["size"] += 2
+				exist = 1
+				break
+		if exist == 0:
+			node_info = {}
+			node_id_map[node] = len(nodes_set)
+			node_info["id"] = len(nodes_set)
+			node_info["value"] = node
+			node_info["size"] = 2
+			node_info["group"] = cal_group(node)
+			node_info["type"] = cal_type(node)
+			nodes_set.append(node_info)
+		exist = 0
+
+	index = 0
+	for link in links:
+		link['source'] = node_id_map[link['source']]
+		link['target'] = node_id_map[link['target']]
+		link['id'] = index
+		index += 1
+
+	for index in node_id_map:
+		id_node_map[node_id_map[index]] = index
+		fathers[node_id_map[index]] = []
+		children[node_id_map[index]] = []
+
+	for record in source:
+		fathers[node_id_map[record["source"]]].append(node_id_map[record["target"]])
+		children[node_id_map[record["target"]]].append(node_id_map[record["source"]])
+
+	for node in nodes_set:
+		node["fathers"] = fathers[node["id"]]
+		node["children"] = children[node["id"]]
+
+	data["source"] = source
+	data["graph"] = {
+		"links" : links,
+		"nodes" : nodes_set
+	}
+
+def load_tests(fpath):
+	with open(fpath) as f:
+		for line in f.readlines():
+			tests.append(line.strip('\n'))
+	return
+
+def load_jdes(fpath):
+	with open(fpath) as f:
+		for line in f.readlines():
+			jdes.append(line.strip('\n'))
+			classes.append(line.split(',')[0])
+	return
+
+# private function
 
 def node_filter(gid):
 
@@ -101,93 +216,17 @@ def link_filter(gid):
 
 	return cur_links
 
-@app.route('/data/<dataname>')
-def _data(dataname):
-	# data preprocessing
-	fpath = 'app/data/' + dataname.rstrip('.txt') + '/' + dataname
+def cal_type(node):
 
-	# change dataset, init paras
-	global node_id_map
-	global id_node_map
-	global fathers
-	global children
-	global nodes_set
-	global nodes
-	global links
-	global source
-	fathers = {}
-	children = {}
-	node_id_map = {}
-	id_node_map = {}
-	nodes_set = []
-	source = []
-	nodes = []
-	links = []
+	if node in tests:
+		return "test"
 
-	# open file, define nodes, links, source
-	with open(fpath) as f:
-		for line in f.readlines():
-			link = {}
-			row = {}
-			link['source'] = line.split()[0]
-			row['source'] = line.split()[0]
-			link['target'] = line.split()[1]
-			row['target'] = line.split()[1]
-			link['value'] = 1
-			link['type'] = "real"
-			links.append(link)
-			source.append(row)
-			nodes.append(link['source'])
-			nodes.append(link['target'])
+	if node in classes:
+		return "class"
 
-	exist = 0
-	for node in nodes:
-		for node_info in nodes_set:
-			if node_info["value"] == node:
-				node_info["size"] += 2
-				exist = 1
-				break
-		if exist == 0:
-			node_info = {}
-			node_id_map[node] = len(nodes_set)
-			node_info["id"] = len(nodes_set)
-			node_info["value"] = node
-			node_info["size"] = 2
-			node_info["group"] = cal_group(node)
-			nodes_set.append(node_info)
-		exist = 0
-
-	index = 0
-	for link in links:
-		link['source'] = node_id_map[link['source']]
-		link['target'] = node_id_map[link['target']]
-		link['id'] = index
-		index += 1
+	return "library"
 
 
-	for index in node_id_map:
-		id_node_map[node_id_map[index]] = index
-		fathers[node_id_map[index]] = []
-		children[node_id_map[index]] = []
-
-	for record in source:
-		fathers[node_id_map[record["source"]]].append(node_id_map[record["target"]])
-		children[node_id_map[record["target"]]].append(node_id_map[record["source"]])
-
-	for node in nodes_set:
-		node["fathers"] = fathers[node["id"]]
-		node["children"] = children[node["id"]]
-
-	data = {}
-	data["source"] = source
-	data["graph"] = {
-		"links" : links,
-		"nodes" : nodes_set
-	}
-
-	return json.dumps(data)
-
-# private function
 def cal_group(node):
 
 	id = 16

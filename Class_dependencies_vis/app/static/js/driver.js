@@ -6,6 +6,7 @@
 
 var mainview = vis.mainview();
 var overview = vis.overview();
+var lview = vis.lview();
 var vview = vis.vview();
 var hview = vis.hview();
 
@@ -51,7 +52,7 @@ function display() {
 		return;
 	}
 
-	var url = "data/" + $('#dataset').val() + ".txt";
+	var url = "data/" + $('#dataset').val();
 
 	d3.json(url, function(error, json) {
 		if (error) {
@@ -62,6 +63,7 @@ function display() {
 		hview.container(d3.select("#hview")).data(json.source).layout().render();
 		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
 		overview.container(d3.select("#overview")).data(json.graph).layout().render();
+		lview.container(d3.select("#lview")).data(json.graph).layout().render();
 
 		vview.data(json.graph);
 
@@ -105,7 +107,23 @@ function wire_views(){
 		if (selected){
 			vview.container(d3.select("#vview")).nodeInfo(nodeInfo).layout().render();
 		}
-		
+
+	});
+
+	//lview
+	lview.dispatch.on('select', function(type) {
+
+
+	});
+
+	lview.dispatch.on('mouseover', function(type) {
+
+
+	});
+
+	lview.dispatch.on('mouseout', function(type) {
+
+
 	});
 
 }

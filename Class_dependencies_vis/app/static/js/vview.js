@@ -86,6 +86,11 @@ vis.vview = function() {
     root.y0 = size[0] / 2;
 
     // Collapse after the second level
+
+    if (root.data.children.length == 0){
+      svg.append("text").text("no child")
+      return;
+    }
     root.children.forEach(collapse);
 
     update(root);
@@ -226,6 +231,7 @@ vis.vview = function() {
   // Private Functions
 
   function buildTree(root, rootNode) {
+
     if (rootNode.children.length == 0) {
       return;
     }
