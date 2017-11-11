@@ -301,3 +301,8 @@ div.tooltip {
 text {
   font-family: sans-serif;
 }
+
+.selectedType {
+  stroke: #797979;
+  stroke-width: 5px;
+}

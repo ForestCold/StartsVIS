@@ -92,15 +92,17 @@ vis.mainview = function() {
     //draw nodes
     node = graph.append("g").selectAll("g").attr("class", "gNode").data(data.nodes).enter().append("g").attr("class", function(d) {
       if (d.type === "test") {
-        return "rectN";
+        return "test";
+      } else if (d.type === "class"){
+        return "class";
       } else {
-        return "circleN";
+        return "library";
       }
     })
 
     var label = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
 
-    var circles = container.selectAll(".circleN").append("circle").attr("class", "classNode").attr("id", function(d) {
+    var circles = container.selectAll(".class").append("circle").attr("class", "classNode").attr("id", function(d) {
       return "c" + d.id;
     }).attr("r", function(d) {
 			if (d.type == "library"){
@@ -111,7 +113,18 @@ vis.mainview = function() {
       return color(d.group.id);
     });
 
-    var rects = container.selectAll(".rectN").append("rect").attr("class", "classNode").attr("id", function(d) {
+    var circles = container.selectAll(".library").append("circle").attr("class", "classNode").attr("id", function(d) {
+      return "c" + d.id;
+    }).attr("r", function(d) {
+      if (d.type == "library"){
+        return Math.sqrt(d.size) / 1.5;
+      }
+      return Math.sqrt(d.size);
+    }).attr("fill", function(d) {
+      return color(d.group.id);
+    });
+
+    var rects = container.selectAll(".test").append("rect").attr("class", "classNode").attr("id", function(d) {
       return "c" + d.id;
     }).attr("height", function(d) {
       return Math.sqrt(d.size) * 5;
@@ -128,9 +141,9 @@ vis.mainview = function() {
 
       label.html(d.value).style("left", (d3.event.pageX) + 10 + "px").style("top", (d3.event.pageY) + "px");
 
-      d3.selectAll("line").classed("unHighlightLinks", true);
-      d3.selectAll("circle").classed("classNodeUnlight", true);
-			d3.selectAll("rect").classed("classNodeUnlight", true);
+      container.selectAll("line").classed("unHighlightLinks", true);
+      container.selectAll("circle").classed("classNodeUnlight", true);
+			container.selectAll("rect").classed("classNodeUnlight", true);
 
       for (i in selected) {
         if (selected[i]) {
@@ -233,8 +246,6 @@ vis.mainview = function() {
 
     var d = null;
 
-    console.log(data.nodes[0])
-
     for (var i = 0; i < data.nodes.length; i++) {
       if (data.nodes[i].value == className) {
         d = data.nodes[i];
@@ -276,6 +287,15 @@ vis.mainview = function() {
       container.selectAll(".classNode").classed("classNodeUnlight", false);
     }
   };
+
+  mainview.showType = function(type, show) {
+    if  (show) {
+      container.selectAll(".classNode").classed("classNodeUnlight", true);
+      container.selectAll("." + type).select(".classNode").classed("classNodeUnlight", false);
+    } else {
+      container.selectAll(".classNode").classed("classNodeUnlight", false);
+    }
+  }
 
   ///////////////////////////////////////////////////
   // Private Functions

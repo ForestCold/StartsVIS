@@ -111,18 +111,32 @@ function wire_views(){
 	});
 
 	//lview
-	lview.dispatch.on('select', function(type) {
+	lview.dispatch.on('select', function(types) {
+		var typeUrl = "type/" + types;
+		d3.select("#mainview").selectAll("*").remove();
+		d3.select("#vview").selectAll("*").remove();
 
+		d3.json(typeUrl, function(error, json) {
+
+			if (error) {
+				console.log(error)
+				return;
+			}
+
+			mainview.data(json.graph).render();
+			vview.data(json.graph);
+
+		});
 
 	});
 
 	lview.dispatch.on('mouseover', function(type) {
-
+		mainview.showType(type, true);
 
 	});
 
 	lview.dispatch.on('mouseout', function(type) {
-
+		mainview.showType(type, false);
 
 	});
 

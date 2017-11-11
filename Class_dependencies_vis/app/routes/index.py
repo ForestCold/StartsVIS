@@ -42,8 +42,22 @@ def _group_filter(group_id):
 	data = {}
 	data["source"] = source
 	data["graph"] = {
-		"nodes" : node_filter(gid),
-		"links" : link_filter(gid)
+		"nodes" : node_filter(gid, "group"),
+		"links" : link_filter()
+	}
+
+	return json.dumps(data)
+
+@app.route('/type/<type_id>')
+def _type_filter(type_id):
+
+	tid = type_id.split(",")
+
+	data = {}
+	data["source"] = source
+	data["graph"] = {
+		"nodes" : node_filter(tid, "type"),
+		"links" : link_filter()
 	}
 
 	return json.dumps(data)
@@ -159,21 +173,25 @@ def load_jdes(fpath):
 
 # private function
 
-def node_filter(gid):
+def node_filter(id, para):
 
 	global remove_nodes
 	cur_nodes = []
 	remove_nodes = []
 
 	for node in nodes_set:
-		if unicode(node["group"]["id"]) in gid:
+		if para == "group":
+			candidate = node["group"]["id"]
+		elif para == "type":
+			candidate = node["type"]
+		if unicode(candidate) in id:
 			cur_nodes.append(node)
 		else:
 			remove_nodes.append(node["id"])
 
 	return cur_nodes
 
-def link_filter(gid):
+def link_filter():
 
 	global remove_nodes
 	remove_links = []
