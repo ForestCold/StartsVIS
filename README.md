@@ -1,27 +1,37 @@
-# CS527 project
-A types dependencies visualization system for STARTS
+# StartsVIS
+**STARTS (STAtic Regression Test Selection)**  is a robust tool for performing static RTS. **StartsVIS** is a d3-based system for visualizing types dependencies in **STARTS**. 
 
-## Development
+## - Introduction
+ *Author:* Hanfei Lin
+ 
+ *Last Modified:* 11/17/2017
+ 
+ *Framework:* FLASK
+ 
+ *Language:* Python + JavaScript
 
-  ### Environment Requirement 
+## - Usage
+
+  ### a. Environment Requirement 
   - Python 2.7
   - pip
   
-  ### Install **flask**
+  ### b. Install **flask**
   
   ```bash
   $ pip install -U flask
   ```
-  ### Set up Web Server
+  ### c. Set up Web Server
 
   ```bash
   $ python run.py
   ```
   
-## Progress files
+## - Progress files
 
 Please visit this url to see progress files:
 https://drive.google.com/drive/folders/1i9Jrh0tiXNrSp4vcnbqyjY_RFyJHx7AE?usp=sharing
 
+## - Preview
 
 ![11/17](https://raw.githubusercontent.com/ForestCold/image/master/5.png)
