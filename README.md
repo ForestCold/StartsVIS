@@ -1,10 +1,14 @@
-# StartsVIS
-**STARTS (STAtic Regression Test Selection)**  is a robust tool for performing static RTS. **StartsVIS** is a d3-based system for visualizing types dependencies in **STARTS**. 
+
+# <img width="120" height="120px" src = "https://raw.githubusercontent.com/ForestCold/Images/master/icon2.png" >
+
+**STARTS (STAtic Regression Test Selection)**  is a robust tool for performing static RTS. 
+
+**StartsVIS** is a d3-based system for visualizing types dependencies in **STARTS**. 
 
 ## - Introduction
  *Author:* Hanfei Lin
  
- *Last Modified:* 11/14/2017
+ *Last Modified:* 11/28/2017
  
  *Framework:* FLASK
  
