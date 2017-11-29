@@ -1,5 +1,7 @@
 
-# <img width="120" height="120px" src = "https://raw.githubusercontent.com/ForestCold/Images/master/icon2.png" >
+<img width="120" height="120px" src = "https://raw.githubusercontent.com/ForestCold/Images/master/icon2.png" >
+
+# STARTSVIS
 
 **STARTS (STAtic Regression Test Selection)**  is a robust tool for performing static RTS. 
 
