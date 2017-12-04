@@ -9,6 +9,7 @@ vis.mainview = function() {
   var mainview = {},
     container = null,
     data = null,
+    module = null,
     size = [
       960, 800
     ],
@@ -31,6 +32,13 @@ vis.mainview = function() {
     if (!arguments.length)
       return data;
     data = _;
+    return mainview;
+  };
+
+  mainview.module = function(_) {
+    if (!arguments.length)
+      return module;
+    module = _;
     return mainview;
   };
 
@@ -61,15 +69,20 @@ vis.mainview = function() {
   mainview.render = function() {
 
     //init
-    simulation = d3.forceSimulation().force("link", d3.forceLink().id(function(d) {
+    simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) {
       return d.id;
-    })).force("charge", d3.forceManyBody()).force("center", d3.forceCenter(size[0] / 2, size[1] / 2));
+    }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(size[0] / 2, size[1] / 2))
+    .force("collide", d3.forceCollide(18).iterations(4))
 
     color = d3.scaleOrdinal(d3.schemeCategory20).domain(d3.range(1, 16));
 
     var zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
 
-    var graph = container.append("svg").style("width", size[0]).style("height", size[1]).style("margin-left", margin.left).style("margin-top", margin.top)
+    var graph = container.append("svg").style("width", size[0] - margin.left - margin.right).style("height", size[1] - margin.top - margin.bottom)
+    .attr("transform", "translate(" + margin.left + ',' + margin.top + ")");
 
     function zoomed() {
       graph.attr("transform", "translate(" + d3.event.transform.x + ',' + d3.event.transform.y + ")scale(" + d3.event.transform.k + ")");
@@ -78,61 +91,31 @@ vis.mainview = function() {
     container.call(zoom).call(d3.drag());
 
     //draw links
-    link = graph.append("g").attr("class", "links").selectAll("line").data(data.links).enter().append("line").attr("id", function(d) {
-      return "l" + d.id;
-    }).attr("stroke-width", function(d) {
-      return Math.sqrt(1);
-    }).attr("stroke", function(d) {
-      if (d.type == "virtual") {
-        return "#6D9AD2";
-      }
-      return "#999";
-    })
+    link = graph.append("g").attr("class", "links").selectAll("line").data(data.links).enter().append("line")
+    .attr("id", d => "l" + d.id)
+    .attr("stroke-width", Math.sqrt(1))
+    .attr("stroke", d => d.type == "virtual" ? "#6D9AD2" : "#999");
 
     //draw nodes
-    node = graph.append("g").selectAll("g").attr("class", "gNode").data(data.nodes).enter().append("g").attr("class", function(d) {
-      if (d.type === "test") {
-        return "test";
-      } else if (d.type === "class"){
-        return "class";
-      } else {
-        return "library";
-      }
-    })
+    var nodeData = [];
+    for (var n in data.nodes){
+      nodeData.push(data.nodes[n]);
+    }
+
+    node = graph.append("g").selectAll("g").attr("class", "gNode").data(nodeData).enter().append("g")
+    .attr("class", d => d.type);
 
     var label = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
 
-    var circles = container.selectAll(".class").append("circle").attr("class", "classNode").attr("id", function(d) {
-      return "c" + d.id;
-    }).attr("r", function(d) {
-			if (d.type == "library"){
-				return Math.sqrt(d.size) / 1.5;
-			}
-      return Math.sqrt(d.size);
-    }).attr("fill", function(d) {
-      return color(d.group.id);
-    });
+    var circles = container.selectAll(".class").append("circle").attr("class", "classNode")
+    .attr("id", d => "c" + d.id)
+    .attr("r", d => Math.sqrt(d.size) * 3).attr("fill", "#FFE17F");
 
-    var circles = container.selectAll(".library").append("circle").attr("class", "classNode").attr("id", function(d) {
-      return "c" + d.id;
-    }).attr("r", function(d) {
-      if (d.type == "library"){
-        return Math.sqrt(d.size) / 1.5;
-      }
-      return Math.sqrt(d.size);
-    }).attr("fill", function(d) {
-      return color(d.group.id);
-    });
-
-    var rects = container.selectAll(".test").append("rect").attr("class", "classNode").attr("id", function(d) {
-      return "c" + d.id;
-    }).attr("height", function(d) {
-      return Math.sqrt(d.size) * 5;
-    }).attr("width", function(d){
-			return Math.sqrt(d.size) * 5;
-		}).attr("fill", function(d) {
-      return color(d.group.id);
-    });
+    var rects = container.selectAll(".test").append("rect").attr("class", "classNode").attr("id", d => "c" + d.id)
+    .attr("height", d => Math.sqrt(d.size) * 20)
+    .attr("width", d => Math.sqrt(d.size) * 20)
+    .attr("transform", d => "translate(" + (- Math.sqrt(d.size) * 10) + ',' + (- Math.sqrt(d.size) * 10) + ")")
+    .attr("fill", "#F7B6D2");
 
     d3.selectAll(".classNode").on("mouseover", function(d) {
 
@@ -152,6 +135,7 @@ vis.mainview = function() {
       }
 
       highlight(d.id, true);
+      dispatch.call("mouseover", this, d, module);
 
     }).on("mouseout", function(d) {
 
@@ -167,6 +151,8 @@ vis.mainview = function() {
           highlight(i, true);
         }
       }
+
+      dispatch.call("mouseout", this, module);
 
     }).on("click", function(d) {
 
@@ -188,11 +174,11 @@ vis.mainview = function() {
         highlight(d.id, false);
       }
 
-      dispatch.call("select", this, d, selected[d.id]);
+      dispatch.call("select", this, d, module, selected[d.id]);
     }).call(d3.drag().on("start", dragstartedNode).on("drag", draggedNode).on("end", dragendedNode));
 
     //animation
-    simulation.nodes(data.nodes).on("tick", ticked);
+    simulation.nodes(nodeData).on("tick", ticked);
 
     simulation.force("link").links(data.links);
 
@@ -318,7 +304,7 @@ vis.mainview = function() {
         d3.select("#c" + j).classed("classNode", true);
       } else {
         d3.selectAll("circle").classed("classNode", true);
-				d3.selectAll("rect").classed("classNode", true);
+				container.selectAll("rect").classed("classNode", true);
       }
 
       return;
@@ -328,6 +314,12 @@ vis.mainview = function() {
     d3.select("#c" + j).classed("classNode", false);
     d3.select("#c" + j).classed("classNodeUnlight", false);
     d3.select("#c" + j).classed("classNodeSelected", true);
+
+    container.selectAll('line').sort(function(a, b) {
+      return (a.source.id == j || a.target.id == j
+        ? 1
+        : 0);
+    });
 
     //highlight the links
     for (var i = 0; i < data.links.length; i++) {
@@ -346,6 +338,7 @@ vis.mainview = function() {
         d3.select("#c" + data.links[i].source.id).classed("classNodeHightlight", true);
       }
     }
+
   };
 
   function private_function2() {};

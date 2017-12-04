@@ -28,23 +28,6 @@ $(document).ready(function() {
 	$("#tabs").tabs();
 	$("#tablists").tabs();
 
-	$('#showAs').change(function(){
-		if (this.checked){
-			vview.showAs("type");
-		} else {
-			vview.showAs("group");
-		}
-		vview.update("type");
-	})
-	$('#relationship').change(function(){
-		if (this.checked){
-			vview.relationship("children");
-		} else {
-			vview.relationship("fathers");
-		}
-		vview.update("relationship");
-	})
-
 	wire_views();
 });
 
@@ -57,10 +40,11 @@ function search() {
 }
 
 function display() {
+
 	// clean contents
 	d3.select("#mainview").selectAll("*").remove();
 	d3.select("#hview").selectAll("*").remove();
-	d3.select("#overview").selectAll("*").remove();
+	d3.select("#lview").selectAll("*").remove();
 	d3.select("#vview").selectAll("*").remove();
 
 	// load datasets
@@ -77,93 +61,50 @@ function display() {
 			return;
 		}
 
-		hview.container(d3.select("#hview")).data(json.source).layout().render();
-		mainview.container(d3.select("#mainview")).data(json.graph).layout().render();
-		overview.container(d3.select("#overview")).data(json.graph).layout().render();
-		lview.container(d3.select("#lview")).data(json.graph).layout().render();
-
-		vview.data(json.graph);
+		hview.container(d3.select("#hview")).data(json).layout().render();
+		// mainview.container(d3.select("#mainview")).data(json);
+		// overview.container(d3.select("#overview")).data(json.graph).layout().render();
+		// lview.container(d3.select("#lview")).data(json.graph).layout().render();
+    lview.container(d3.select("#lview")).data(json).layout().render();
+		vview.data(json);
 
 	});
 };
 
 function wire_views(){
 
-	//overview
-	overview.dispatch.on('mouseover', function(group) {
-			mainview.showGroup(group, true);
-	});
-
-	overview.dispatch.on('mouseout', function(group) {
-			mainview.showGroup(group, false);
-	});
-
-	overview.dispatch.on('select', function(selected) {
-
-		var groupUrl = "group/" + selected;
+	//hview
+	hview.dispatch.on('select', function(module, selectedNode) {
 		d3.select("#mainview").selectAll("*").remove();
-		d3.select("#vview").selectAll("*").remove();
 
-		d3.json(groupUrl, function(error, json) {
-
-			if (error) {
-				console.log(error)
-				return;
-			}
-
-			mainview.data(json.graph).render();
-
+		$.ajax({
+      url: "/node_filter",
+      method: 'GET',
+      data: {
+				node: JSON.stringify(selectedNode),
+				module: JSON.stringify(module)
+			},
+      success: function(resp) {
+        mainview.container(d3.select("#mainview")).module(module).data(JSON.parse(resp)).layout().render();
+      }
 		});
 	});
 
 	//mainview
-	mainview.dispatch.on('select', function(nodeInfo, selected) {
-
+	mainview.dispatch.on('select', function(nodeInfo, module, selected) {
 		d3.select("#vview").selectAll("*").remove();
 		if (selected){
-
-			var showAs = $('#showAs').prop('checked');
-			var relationship = $('#relationship').prop('checked');
-			if (showAs){
-				vview.showAs("type");
-			} else {
-				vview.showAs("group");
-			}
-			if (relationship){
-				vview.relationship("children");
-			} else {
-				vview.relationship("fathers");
-			}
-			vview.container(d3.select("#vview")).nodeInfo(nodeInfo).layout().render();
+			vview.container(d3.select("#vview")).module(module).nodeInfo(nodeInfo).layout().render();
 		}
-
 	});
 
-	//lview
-	lview.dispatch.on('select', function(types) {
-		var typeUrl = "type/" + types;
-		d3.select("#mainview").selectAll("*").remove();
-		d3.select("#vview").selectAll("*").remove();
-
-		d3.json(typeUrl, function(error, json) {
-
-			if (error) {
-				console.log(error)
-				return;
-			}
-			mainview.data(json.graph).render();
-		});
-
+	mainview.dispatch.on('mouseover', function(nodeInfo, module) {
+		hview.highlightNode(nodeInfo, module);
 	});
 
-	lview.dispatch.on('mouseover', function(type) {
-		mainview.showType(type, true);
-
+	mainview.dispatch.on('mouseout', function(module) {
+		hview.unhighlightNode(module);
 	});
 
-	lview.dispatch.on('mouseout', function(type) {
-		mainview.showType(type, false);
-
-	});
 
 }

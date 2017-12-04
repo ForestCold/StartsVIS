@@ -80,7 +80,7 @@ div.no_selection {
 #lview {
     text-align: center;
     width: inherit;
-    height: 37.5%;
+    height: 86%;
     padding: 0 4px 0 4px;
     margin: 2px 0 2px 0;
 }
@@ -96,7 +96,6 @@ div.no_selection {
 #hview {
     margin-top: 2px;
     width: inherit;
-    overflow: scroll;
     padding: 0 4px 0 4px;
     position: absolute;
     top: 33px;
@@ -122,6 +121,11 @@ div.no_selection {
   stroke: black;
   fill-opacity: .125;
   shape-rendering: crispEdges;
+}
+
+.brush .selection {
+	/*stroke: #000;
+	fill: red;*/
 }
 
 /*web page style*/
@@ -208,8 +212,8 @@ button{
 }
 
 .classNodeSelected {
-  stroke: #FFEF82;
-  stroke-width: 5px;
+  stroke: #5cbadc;
+  stroke-width: 4px;
 }
 
 .classNodeUnlight {
@@ -220,12 +224,11 @@ button{
 
 div.tooltip {
     position: absolute;
-    text-align: center;
-    height: 20px;
     padding: 5px;
     font: 12px sans-serif;
-    background: white;
-    border: solid 1.5px #555;
+    background: #555;
+    color: white;
+    border: solid 1px #ccc;
     border-radius: 8px;
     pointer-events: none;
 }
@@ -380,4 +383,35 @@ text {
 }
 .model-1 .checkbox input:checked + label:after {
   background: #4285F4;
+}
+
+.module {
+  border: 2px solid #555;
+}
+
+.block {
+  border: 1px solid red;
+}
+
+.legend {
+  background: -webkit-linear-gradient(left, #08519c, #f7fbff); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(right, #08519c, #f7fbff); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(right, #08519c, #f7fbff); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to right, #08519c, #f7fbff); /* Standard syntax */
+  height: 12px;
+  width: 300px;
+  border: 1px solid #ccc;
+}
+
+.moduTitle {
+  background: #5cbadc;
+  border: 2px solid #555;
+  font-family: sans-serif;
+    line-height: 20px;
+  text-align: center;
+}
+
+.moduTitle:hover {
+  background: #e1f5fd;
+  border: 2px solid #555;
 }
